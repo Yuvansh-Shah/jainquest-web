@@ -1,0 +1,65 @@
+.scroll-stack-scroller {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: visible;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
+  will-change: scroll-position;
+}
+
+.scroll-stack-inner {
+  padding: 20vh 5rem 50rem;
+  min-height: 100vh;
+}
+
+.scroll-stack-card-wrapper {
+  position: relative;
+}
+
+.scroll-stack-card {
+  transform-origin: top center;
+  will-change: transform, filter;
+  backface-visibility: hidden;
+  /* transform-style: preserve-3d omitted — it causes blurry text when scale() is applied */
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.1);
+  height: 20rem;
+  width: 100%;
+  margin: 30px 0;
+  padding: 3rem;
+  border-radius: 40px;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.scroll-stack-end {
+  width: 100%;
+  height: 1px;
+}
+
+/* --- Project integration overrides ---
+   We embed this on the normal landing page with window scroll, so the
+   internal scroller must flow in the document instead of being its own
+   fixed-height scroll area. Side padding is removed (the landing already
+   constrains width) and the card sizing adapts to variable text. */
+.scroll-stack-scroller {
+  height: auto;
+  overflow: visible;
+}
+
+.scroll-stack-inner {
+  padding: 4vh 0 28rem;
+  min-height: 0;
+}
+
+.scroll-stack-card {
+  height: auto;
+  min-height: 0;
+  padding: 0;
+  border-radius: 24px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.32);
+}

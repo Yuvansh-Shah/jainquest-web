@@ -1,0 +1,31 @@
+# Cloudflare Worker config for the JainQuest "Ask Guru" proxy.
+#
+# Deploy steps (run inside this guru-proxy/ folder):
+#   1. npx wrangler@latest login
+#   2. npx wrangler@latest secret put NVIDIA_API_KEY   (paste the key when asked)
+#   3. npx wrangler@latest deploy
+# Step 3 prints a URL like https://jainquest-guru.<your-subdomain>.workers.dev
+#
+# The NVIDIA key is a SECRET set in step 2 — it is stored encrypted by
+# Cloudflare and never lives in this repo or in the browser.
+
+name = "jainquest-guru"
+main = "worker.js"
+compatibility_date = "2026-05-01"
+
+# Lets worker.js import soul.md as a plain string (the Guru's persona).
+[[rules]]
+type = "Text"
+globs = ["**/*.md"]
+fallthrough = true
+
+[vars]
+# The NVIDIA model ID. A fast, non-reasoning instruct model — replies in
+# ~2s on NVIDIA's API, no hidden "thinking" pause. Benchmarked alternatives:
+# meta/llama-3.3-70b-instruct (smarter but ~30s — too slow on the free tier),
+# meta/llama-4-maverick-17b-128e-instruct (~11s). Change + redeploy to switch.
+NVIDIA_MODEL = "meta/llama-3.1-8b-instruct"
+
+# Browser origins allowed to call this proxy (comma-separated). Update these
+# to match your deployed site if the Firebase project domain differs.
+ALLOWED_ORIGINS = "https://jainquest-4297e.web.app,https://jainquest-4297e.firebaseapp.com,http://localhost:3000"

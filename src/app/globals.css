@@ -1,26 +1,110 @@
 @import "tailwindcss";
 
+/* Matches the original JainQuest landing page: dark, glassy panels over an
+   animated wave canvas, Fraunces display + IBM Plex Sans body, warm
+   terracotta-gold accent. */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #05070b;
+  --surface: rgba(10, 13, 18, 0.72);
+  --surface-2: rgba(255, 255, 255, 0.05);
+  --foreground: #f3ede4;
+  --muted: #b7b1a6;
+  --border: rgba(244, 236, 225, 0.12);
+  --primary: #df9b5f;
+  --primary-strong: #d48943;
+  --secondary: #fbbf77;
+  --success: #5bbf8a;
+  --danger: #e8806f;
+  --warning: #f59e0b;
+  --gold: #e0a93a;
+}
+
+/* Light mode: a calm warm parchment variant (still works over the canvas
+   thanks to more opaque panels). */
+.light {
+  --background: #f7f6f3;
+  --surface: rgba(255, 255, 255, 0.92);
+  --surface-2: rgba(20, 16, 12, 0.05);
+  --foreground: #1c1a17;
+  --muted: #6b6457;
+  --border: rgba(20, 16, 12, 0.12);
+  --primary: #c2613f;
+  --primary-strong: #a64f30;
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-primary: var(--primary);
+  --color-primary-strong: var(--primary-strong);
+  --color-secondary: var(--secondary);
+  --color-success: var(--success);
+  --color-danger: var(--danger);
+  --color-warning: var(--warning);
+  --color-gold: var(--gold);
+  --font-sans: var(--font-plex);
+  --font-display: var(--font-fraunces);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  height: 100%;
+  background: #05070b;
+  color-scheme: dark;
+}
+
+html.light {
+  background: #f7f6f3;
+  color-scheme: light;
+}
+
+/* The aurora glow suits the dark theme; hide it in light parchment mode. */
+html.light .app-aurora {
+  display: none;
 }
 
 body {
-  background: var(--background);
+  min-height: 100%;
+  background: transparent;
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-plex), system-ui, sans-serif;
+}
+
+h1,
+h2,
+h3,
+.font-display {
+  font-family: var(--font-fraunces), Georgia, serif;
+  letter-spacing: -0.02em;
+}
+
+* {
+  border-color: var(--border);
+}
+
+/* Frosted-glass panel that lets the wave show through. */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 1.25rem;
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.32);
+}
+
+.glass {
+  background: var(--surface);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+}
+
+/* Visible keyboard-focus ring for accessibility. Only shows for keyboard
+   (and other non-pointer) focus, so it never appears on mouse clicks. */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+  border-radius: 4px;
 }

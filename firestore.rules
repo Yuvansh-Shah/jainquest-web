@@ -1,0 +1,89 @@
+rules_version = '2';
+
+// Firestore security rules for the shared `jainquest-4297e` project. Both the
+// Flutter app and this web app read/write the same documents, so these rules
+// must stay compatible with both clients. Default behaviour is deny: a request
+// is only permitted if a matching rule below explicitly allows it.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    function isUser(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    // ---- Per-user data ----
+    // Any signed-in user can READ a user doc so the leaderboard query
+    // (users ordered by totalXp, limit 100) works for everyone — this is the
+    // same access the Flutter client already relies on. Only the owner can
+    // write. Subcollections (progress, notifications, settings, attempts) are
+    // private to the owner for both read and write.
+    //
+    // Tradeoff: allowing signed-in reads of the user doc exposes whatever is
+    // stored there (e.g. email, age) to any signed-in user via the
+    // leaderboard. Hardening this would mean a separate public-profile mirror,
+    // which must be mirrored in both clients — out of scope here, documented
+    // intentionally.
+    match /users/{userId} {
+      allow read: if isSignedIn();
+      allow create, update, delete: if isUser(userId);
+
+      match /{document=**} {
+        allow read, write: if isUser(userId);
+      }
+    }
+
+    // ---- App config (e.g. Gemini API key) ----
+    // Readable by signed-in clients; never writable from a client (managed in
+    // the Firebase console / via the Admin SDK).
+    match /app_config/{docId} {
+      allow read: if isSignedIn();
+      allow write: if false;
+    }
+
+    // ---- Community forum ----
+    match /forum_posts/{postId} {
+      allow read: if isSignedIn();
+
+      // The author creates their own post; social counters start clean.
+      allow create: if isSignedIn()
+        && request.resource.data.authorId == request.auth.uid
+        && request.resource.data.likesCount == 0
+        && request.resource.data.repliesCount == 0
+        && request.resource.data.likedBy.size() == 0;
+
+      // The author may delete their own post (forum moderation).
+      allow delete: if isSignedIn()
+        && resource.data.authorId == request.auth.uid;
+
+      // The author may edit their own post freely. Any other signed-in user
+      // may only touch the like/reply counters — this is what the like-toggle
+      // and reply transactions write. Counters can't go negative.
+      allow update: if isSignedIn() && (
+        resource.data.authorId == request.auth.uid
+        || (
+          request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['likedBy', 'likesCount', 'repliesCount'])
+          && request.resource.data.likesCount >= 0
+          && request.resource.data.repliesCount >= 0
+        )
+      );
+
+      match /replies/{replyId} {
+        allow read: if isSignedIn();
+        allow create: if isSignedIn()
+          && request.resource.data.authorId == request.auth.uid;
+        allow delete: if isSignedIn()
+          && resource.data.authorId == request.auth.uid;
+        allow update: if false;
+      }
+    }
+
+    // Explicit default-deny for anything not matched above.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

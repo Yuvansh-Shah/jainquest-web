@@ -1,0 +1,12 @@
+{
+  "name": "jainquest-guru-proxy",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Cloudflare Worker proxy for the JainQuest Ask Guru feature.",
+  "scripts": {
+    "deploy": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4.93.1"
+  }
+}
