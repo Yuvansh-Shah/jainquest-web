@@ -1,5 +1,6 @@
 {
   "hosting": {
+    "site": "jainquest-4297e",
     "public": "out",
     "cleanUrls": true,
     "trailingSlash": false,
